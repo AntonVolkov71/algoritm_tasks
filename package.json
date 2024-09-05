@@ -1,0 +1,28 @@
+{
+  "name": "1.-tasks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev:leetcode": "nodemon src/leetcode/index.ts",
+    "test": "jest",
+    "test:uniquenum": "npm test -- src/codewars/queue/implementing_queue.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AntonVolkov71/tasks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AntonVolkov71/tasks/issues"
+  },
+  "homepage": "https://github.com/AntonVolkov71/tasks#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2"
+  }
+}
