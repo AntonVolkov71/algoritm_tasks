@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start:dev:leetcode": "nodemon src/leetcode/index.ts",
+    "start:dev:ya_contest": "nodemon src/yandex_contest/mini_cource_algos/index.js",
+    "start:test:ya_contest": "npm test -- ./src/yandex_contest/mini_cource_algos/E. Rymlyanin/romanNumbers.test.js",
     "test": "jest",
     "test:uniquenum": "npm test -- src/codewars/queue/implementing_queue.test.ts"
   },
