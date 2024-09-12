@@ -1,65 +1,9 @@
-/*
-      -- ПРИНЦИП РАБОТЫ --
-
-
-    Алгоритм:
-
-
-    -- ВРЕМЕННАЯ СЛОЖНОСТЬ --
-
-    n - количество элементов
-
-    Запись остатков всех элементов                      - O(n)
-    Цикл подсчета необходимых длин массива остатка      - O(n)
-
-    Итого O(n)
-
-    -- ПРОСТРАНСТВЕННАЯ СЛОЖНОСТЬ --
-
-    Хранение словаря остатков   - O(n)
-
-    Итого O(n)
- */
-
 const path = require("path");
 const fs = require("fs");
 const readline = require('readline');
-const pathInputFile = path.resolve(__dirname, 'input.txt')
+const pathInputFile = path.resolve(__dirname, 'input.txt');
 
-
-function start(pathInputFile, cb) {
-    const lineReader = readline.createInterface({
-        input: fs.createReadStream(pathInputFile)
-    });
-
-    let lineNumber = 0
-
-
-    const romanNumbers = []
-
-    lineReader.on('line', function (line) {
-
-        if (lineNumber === 0) {
-            line.trim().split('').forEach(item => romanNumbers.push(item))
-        }
-
-        lineNumber++
-    });
-
-    lineReader.on('close', function () {
-        if (cb) {
-            cb(solution(romanNumbers, true))
-        } else {
-            solution(romanNumbers, false)
-        }
-    });
-}
-
-
-// start(pathInputFile)
-
-test(1, 3)
-
+// Карта значений римских символов
 const values = new Map([
     ["I", 1],
     ["IV", 4],
@@ -74,144 +18,153 @@ const values = new Map([
     ['D', 500],
     ['CM', 900],
     ['M', 1000]
-])
+]);
 
-const inRowIXCM = []
-const oneTimeVLD = {}
+// Проверка на корректность римской записи
+function isValidRoman(romanNumbers) {
+    let repeatedSymbols = [];
+    let singleUseSymbols = {};
 
+    for (let i = 0; i < romanNumbers.length; i++) {
+        const currentChar = romanNumbers[i];
 
-function checkInRow(num) {
-    const findInRowIndex = inRowIXCM.findIndex(item => item === num)
-
-    if (findInRowIndex === -1 || findInRowIndex < 3) {
-        inRowIXCM.push(num)
-
-        return true
-    }
-
-    return false
-}
-
-
-function checkOneTimes(num) {
-    if (num in oneTimeVLD) {
-        return false
-    }
-
-    oneTimeVLD[num] = 1
-
-    return oneTimeVLD[num]
-}
-
-function check(num) {
-    const isInRow = num === 'I' || num === 'X' || num === 'C' || num === 'M'
-
-    if (isInRow) {
-        return checkInRow(num)
-    }
-
-    const isOneTime = num === 'V' || num === 'L' || num === 'D'
-
-    if (isOneTime) {
-        return checkOneTimes(num)
-    }
-
-
-    return true
-}
-
-function convertToArabic(romanNumbers) {
-    const negativeRes = -1
-    let res = 0
-
-    if (romanNumbers.length === 1) {
-        return values.get(romanNumbers[0])
-    }
-
-    let i = 0
-
-    while (i < romanNumbers.length) {
-        const isCheck = check(romanNumbers[i])
-
-        if (!isCheck) {
-            return negativeRes
+        // Проверка одноразовых символов V, L, D
+        if (currentChar === 'V' || currentChar === 'L' || currentChar === 'D') {
+            if (singleUseSymbols[currentChar]) {
+                return false;  // Если символ уже встречался, запись некорректна
+            }
+            singleUseSymbols[currentChar] = true;
         }
 
-
-        if (romanNumbers[i] === 'I' && romanNumbers[i + 1] === 'V') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        }
-
-        if (romanNumbers[i] === 'I' && romanNumbers[i + 1] === 'X') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        } else if (romanNumbers[i] === 'X' && romanNumbers[i + 1] === 'L') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        } else if (romanNumbers[i] === 'X' && romanNumbers[i + 1] === 'C') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        } else if (romanNumbers[i] === 'C' && romanNumbers[i + 1] === 'D') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        } else if (romanNumbers[i] === 'C' && romanNumbers[i + 1] === 'M') {
-            res += values.get(romanNumbers[i] + romanNumbers[i + 1])
-            i++
-        } else {
-            res += values.get(romanNumbers[i])
-        }
-
-        i++
-    }
-
-    // your code goes here
-    return res > 0 ? res : negativeRes
-}
-
-function solution(romanNumbers, isTest) {
-    console.log('in', romanNumbers)
-    const res = convertToArabic(romanNumbers)
-
-    if (isTest) {
-        return res
-    }
-
-    console.log(res)
-}
-
-module.exports = solution
-
-function parseTestRes(pathFileOutPut) {
-    const data = fs.readFileSync(pathFileOutPut)
-
-    return data.toString().trim()
-}
-
-function alertError(indexTest, solution, testRes) {
-    console.log(indexTest, '. Error - solution:', solution)
-    console.log(indexTest, '. Error -     test:', testRes)
-}
-
-function test(startIndex, endIndex) {
-    function cb(pathFileOutPut, indexTest) {
-        const testRes = parseTestRes(pathFileOutPut)
-        return function (data) {
-
-            if (data === parseInt(testRes)) {
-                console.log(indexTest, '. OK - solution', data)
-
-            } else {
-                alertError(indexTest, data, testRes)
+        // Проверка на повторяющиеся символы I, X, C, M
+        if (currentChar === 'I' || currentChar === 'X' || currentChar === 'C' || currentChar === 'M') {
+            if (repeatedSymbols.length > 0 && repeatedSymbols[repeatedSymbols.length - 1] !== currentChar) {
+                repeatedSymbols = [];
+            }
+            repeatedSymbols.push(currentChar);
+            if (repeatedSymbols.length > 3) {
+                return false;  // Нельзя использовать символ больше трех раз подряд
             }
         }
     }
+    return true;
+}
+
+// Конвертация римских чисел в арабские
+// function convertToArabic(romanNumbers) {
+//     let result = 0;
+//     let i = 0;
+//
+//     while (i < romanNumbers.length) {
+//         const currentChar = romanNumbers[i];
+//         const nextChar = romanNumbers[i + 1];
+//
+//         // Обработка пары символов
+//         if (nextChar && values.has(currentChar + nextChar)) {
+//             result += values.get(currentChar + nextChar);
+//             i += 2;
+//         } else {
+//             result += values.get(currentChar);
+//             i++;
+//         }
+//     }
+//
+//     return result;
+// }
+const convertToArabic = (romanNumber) => {
+    const map = {
+        M: 1000,
+        D: 500,
+        C: 100,
+        L: 50,
+        X: 10,
+        V: 5,
+        I: 1,
+    };
+
+    const nums = romanNumber
+    let result = 0;
+    for (let i = 0; i < nums.length; i += 1) {
+        const first = map[nums[i]];
+        const second = map[nums[i + 1]] ?? 0;
+        if (first < second) {
+            result += second - first;
+            i += 1;
+        } else {
+            result += first;
+        }
+    }
+    return result;
+};
+
+// Основная функция решения
+function solution(romanNumbers, isTest) {
+    if (!isValidRoman(romanNumbers)) {
+        return -1;  // Некорректная запись римских чисел
+    }
+
+    const result = convertToArabic(romanNumbers);
+
+    if (isTest) {
+        return result;  // Возвращаем для теста
+    }
+
+    process.stdout.write(String(result))
+}
+
+// Функция для чтения данных из файла
+function start(pathInputFile, cb) {
+    const lineReader = readline.createInterface({
+        input: fs.createReadStream(pathInputFile)
+    });
+
+    let romanNumbers = [];
+
+    lineReader.on('line', function (line) {
+        romanNumbers = line.trim().split('');  // Чтение римской записи
+    });
+
+    lineReader.on('close', function () {
+        if (cb) {
+            cb(solution(romanNumbers, true));  // Передача результата для теста
+        } else {
+            solution(romanNumbers, false);  // Решение задачи
+        }
+    });
+}
+
+// Тестирование решения
+function test(startIndex, endIndex) {
+    function parseTestResult(pathFileOutPut) {
+        const data = fs.readFileSync(pathFileOutPut);
+        return data.toString().trim();
+    }
+
+    function alertError(indexTest, solution, testRes) {
+        console.log(`${indexTest}. Error - solution: ${solution}`);
+        console.log(`${indexTest}. Error - expected: ${testRes}`);
+    }
+
+    function runTest(pathFileOutPut, indexTest) {
+        const testRes = parseTestResult(pathFileOutPut);
+        return function (solutionResult) {
+            if (String(solutionResult) === testRes) {
+                console.log(`${indexTest}. OK - solution: ${solutionResult}`);
+            } else {
+                alertError(indexTest, solutionResult, testRes);
+            }
+        };
+    }
 
     for (let i = startIndex; i <= endIndex; i++) {
-        const pathFileInput = path.resolve(__dirname, `mockTest/${i}/input.txt`)
-        const pathFileOutPut = path.resolve(__dirname, `mockTest/${i}/output.txt`)
-        const callback = cb(pathFileOutPut, i)
+        const pathFileInput = path.resolve(__dirname, `mockTest/${i}/input.txt`);
+        const pathFileOutPut = path.resolve(__dirname, `mockTest/${i}/output.txt`);
+        const callback = runTest(pathFileOutPut, i);
 
-        start(pathFileInput, callback)
+        start(pathFileInput, callback);  // Запуск теста
     }
 }
+
+// Запуск тестирования (например, для тестов с 1 по 12)
+// test(1, 12);
+start(pathInputFile)
